@@ -26,9 +26,10 @@ def calcGravity(polynom, tilt, unitsGravity):
 @cbpi.sensor
 class iSpindel(SensorActive):
 	key = Property.Text(label="iSpindel Name", configurable=True, description="Enter the name of your iSpindel")
-	sensorType = Property.Select("Data Type", options=["Temperature", "Gravity", "Battery"], description="Select which type of data to register for this sensor")
+	sensorType = Property.Select("Data Type", options=["Temperature", "Gravity", "Battery", "RSSI"], description="Select which type of data to register for this sensor")
 	tuningPolynom = Property.Text(label="Tuning Polynomial", configurable=True, default_value="tilt", description="Enter your iSpindel polynomial. Use the variable tilt for the angle reading from iSpindel. Does not support ^ character.")
 	unitsGravity = Property.Select("Gravity Units", options=["SG", "Brix", "°P"], description="Displays gravity reading with this unit if the Data Type is set to Gravity. Does not convert between units, to do that modify your polynomial.")
+        stored_angle = 0
 
 	def get_unit(self):
 		if self.sensorType == "Temperature":
@@ -37,6 +38,8 @@ class iSpindel(SensorActive):
 			return self.unitsGravity
 		elif self.sensorType == "Battery":
 			return "V"
+                elif self.sensorType == "RSSI":
+                        return "dBm"
 		else:
 			return " "
 
@@ -49,7 +52,9 @@ class iSpindel(SensorActive):
 			try:				
 				if cache[self.key] is not None:
 					if self.sensorType == "Gravity":
-						reading = calcGravity(self.tuningPolynom, cache[self.key]['Angle'], self.unitsGravity)
+                                                angle = cache[self.key]['Angle']
+						reading = calcGravity(self.tuningPolynom, angle, self.unitsGravity)
+                                                self.stored_angle = angle
 					else:
 						reading = cache[self.key][self.sensorType]
 					self.data_received(reading)
@@ -66,8 +71,12 @@ def set_temp():
 	temp = round(float(data["temperature"]), 2)
 	angle = data["angle"]
 	battery = data["battery"]
-
-	cache[id] = {'Temperature': temp, 'Angle': angle, 'Battery': battery}
+        #iSpindel with old FW doesn't provide data about RSSI
+        if 'RSSI' in data:
+            rssi = data["RSSI"]
+        else:
+            rssi = 0
+        cache[id] = {'Temperature': temp, 'Angle': angle, 'Battery': battery, 'RSSI' : rssi}
 
 	return ('', 204)
 
