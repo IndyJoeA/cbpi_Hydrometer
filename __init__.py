@@ -72,12 +72,12 @@ def set_temp():
 	temp = round(float(data["temperature"]), 2)
 	angle = data["angle"]
 	battery = data["battery"]
-
-	interval = data["interval"]
-	RSSI = data["RSSI"]
-
-	cache[id] = {'Temperature': temp, 'Angle': angle, 'Battery': battery, 'Interval': interval, 'RSSI': RSSI}
-
+	try: # this makes it compatible with VERY OLD iSpindel firmware
+		interval = data["interval"]
+		RSSI = data["RSSI"]
+		cache[id] = {'Temperature': temp, 'Angle': angle, 'Battery': battery, 'Interval': interval, 'RSSI': RSSI}
+	except:
+		cache[id] = {'Temperature': temp, 'Angle': angle, 'Battery': battery}
 	return ('', 204)
 
 @cbpi.initalizer()
