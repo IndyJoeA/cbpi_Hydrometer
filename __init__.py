@@ -50,8 +50,10 @@ class iSpindel(SensorActive):
 				if cache[self.key] is not None:
 					if self.sensorType == "Gravity":
 						reading = calcGravity(self.tuningPolynom, cache[self.key]['Angle'], self.unitsGravity)
+						del cache[self.key]['Angle']
 					else:
 						reading = cache[self.key][self.sensorType]
+						del cache[self.key][self.sensorType]
 					self.data_received(reading)
 			except:
 				pass
