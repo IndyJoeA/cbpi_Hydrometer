@@ -73,5 +73,5 @@ def set_temp():
 
 @cbpi.initalizer()
 def init(cbpi):
-	print "INITIALIZE ISPINDEL MODULE"
+	print("INITIALIZE ISPINDEL MODULE")
 	cbpi.app.register_blueprint(blueprint)
